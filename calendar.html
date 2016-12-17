@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato:100,700">
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <meta charset="UTF-8">
+  <title>Calendar Test</title>
+  <style>
+    ul {
+    list-style-type: none;
+    }
+
+
+    #month {
+      font-family: "Lucida Grande", serif;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    #year {
+      font-family: "Lato", serif;
+      font-size: 32px;
+      font-weight: 100;
+    }
+
+    #navigator {
+      margin-left: 10px;
+      font-family: "Lucida Grande", serif;
+    }
+
+    #weekdays li {
+      font-family: "Lato", serif;
+      font-weight: 700;
+      display: inline-block;
+      width: 13.6%;
+      text-align: right;
+    }
+
+    #days li {
+      display: inline-block;
+      width: 13.6%;
+      text-align: right;
+      height: 100px;
+      /*margin: 1px;*/
+    }
+
+    .weekend {
+      color: #666;
+    }
+
+    .active {
+      color: red;
+      font-weight: bold;
+    }
+
+
+  </style>
+</head>
+<body>
+
+<div id="calendar">
+
+  <div id="head">
+    <span id="month">{{monthName}}</span>
+    <span id="year">{{year}}</span>
+    <span id="navigator">
+      <button @click="prevMonth()"><</button>
+      <button @click="goToday()">Today</button>
+      <button @click="nextMonth()">></button>
+    </span>
+  </div>
+
+  <ul id="weekdays">
+    <li v-for="weekday in weekdays" :class="{weekend: isWeekend(weekday)}">{{weekday}}</li>
+  </ul>
+
+  <ul id="days">
+    <li v-for="day in days"><span :class="{active: isActive(day)}">{{day.getDate()}}</span></li>
+  </ul>
+</div>
+<script>
+
+  Vue.component('day-item', {
+    props: ['day'],
+    template: "<div class='day-item'>" +
+              "<span>{{day.getDate()}}</span>" +
+              "</div>"
+  });
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var date = new Date(Date.now());
+
+  var calendar = new Vue({
+    el: '#calendar',
+    data: {
+      weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      year: date.getFullYear(),
+      month: date.getMonth(),
+      today: date
+    },
+
+    computed: {
+      monthName: function () {
+        return months[this.month];
+      },
+      days: function () {
+        var self = this;
+        var newDays = [];
+        var firstDay = new Date(Date.UTC(self.year, self.month, 1));
+        var initDay = new Date(firstDay.getTime() - 3600 * 1000 * 24 * firstDay.getDay());
+
+        for (i = 0; i < 42; i++) {
+          var day = new Date(initDay.getTime() + 3600 * 1000 * 24 * i);
+          newDays.push(day);
+        }
+
+        return newDays;
+
+      }
+    },
+
+    methods: {
+      nextMonth: function () {
+
+        var self = this;
+        if (self.month < 11) {
+          self.month += 1;
+        } else {
+          self.month = 0;
+          self.year += 1;
+        }
+      },
+
+      prevMonth: function () {
+
+        var self = this;
+        if (self.month > 0) {
+          self.month -= 1;
+        } else {
+          self.month = 11;
+          self.year -= 1;
+        }
+      },
+
+      goToday: function () {
+        var self = this;
+        var date = new Date(Date.now());
+        self.month = date.getMonth();
+        self.year = date.getFullYear();
+      },
+
+      isActive: function (day) {
+        var self = this;
+        return day.getDate() == self.today.getDate() && day.getMonth() == self.today.getMonth() &&
+               day.getYear() == self.today.getYear()
+      },
+
+      isWeekend: function (weekday) {
+        var self = this;
+        return weekday == self.weekdays[0] || weekday == self.weekdays[6];
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
