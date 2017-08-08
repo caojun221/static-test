@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+</head>
+<body>
+<div ng-app="docsTimeDirective">
+  <div ng-controller="MyController">
+    <input ng-model="format">
+    <hr>
+    <span my-current-time="format"></span>
+  </div>
+</div>
+<script type="text/javascript">
+  var app = angular.module('docsTimeDirective', []);
+  app.controller('MyController', function ($scope) {
+    $scope.format = 'M/d/yy h:mm:ss a';
+  }).directive('myCurrentTime', ['dateFilter', function (dateFilter) {
+
+    function link(scope, element, attrs) {
+      updateTime(scope.format);
+
+       function updateTime(format) {
+         element.text(dateFilter(new Date(), format));
+        }
+
+       scope.$watch(attrs.myCurrentTime, function (value) {
+         updateTime(value);
+       });
+    }
+    
+    return {
+      link: link
+    };
+  }]);
+</script>
+</body>
+</html>
